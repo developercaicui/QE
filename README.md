@@ -4,7 +4,7 @@ QuestionsElement
 ### 准备工作
 
 ### 技术选型
-	Vue+@vue/cli3+element+webpack+git/svn+测试
+	Vue+@vue/cli3+element+webpack+git/svn+unit+e2e
 	
 ### 业务流程
 	组件-不同的元素组合
@@ -26,7 +26,7 @@ QuestionsElement
 	耿永攀：矩阵，api，通用，
 	赵知博：问答，拖拽
 	徐伟晋：单选，多选，填空，下拉，组合
-	赵攀科：测试用例
+	赵攀科：unit+e2e
 	
 ### git:
 	耿永攀（gengyongpan）
