@@ -22,7 +22,7 @@ export default new Router({
       component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
     },
     {
-      path: 'multiTask/multiTask',
+      path: '/multiTask',
       name: 'multiTask',
       component: () => import(/* webpackChunkName: "multiTask" */ './views/multiTask/multiTask.vue')
     }
