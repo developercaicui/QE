@@ -15,30 +15,30 @@
         :label="item.label"> 
           <template slot-scope="scope">
             <!-- 输入框 -->
-            <el-input  v-if ="dropCol[index].id == '1'" v-model="tableInput[scope.$index]" placeholder="请输入内容"></el-input>
+            <el-input  v-if ="dropCol[index].id == '1'" v-model="tableData[scope.$index].title" placeholder="请输入内容"></el-input>
 
           <!-- 类型判断 -->
             <!-- 单选 -->
-            <el-radio-group v-model="typeRadio" v-if ="dropCol[index].id == '2' && type == 3" >
-              <el-radio :label="tableData[scope.$index].id">选项</el-radio>
+            <el-radio-group v-model="saveData.typeRadio" v-if ="dropCol[index].id == '2' && type == 3" >
+              <el-radio :label="tableData[scope.$index].typeRadio + item.id">{{item.id}}</el-radio>
             </el-radio-group>
            <!-- 多选 -->
             <el-checkbox-group v-model="checkList" v-if ="dropCol[index].id == '2' && type == 6">
                 <el-checkbox :label="tableData[scope.$index].id">选择</el-checkbox>
             </el-checkbox-group>
             <!-- 填空 -->
-            <el-input  v-if ="dropCol[index].id == '2' && type == 9" v-model="tableInput" placeholder="请输入内容"></el-input>
+            <el-input  v-if ="dropCol[index].id == '2' && type == 9" v-model="tableData[scope.$index].tableInput[item.id]" placeholder="请输入内容"></el-input>
 
           <!-- 答案 -->
             <!-- 单选 -->
-            <el-radio-group v-model="typeRadio" v-if ="dropCol[index].id > '2' && type == 3">
-              <el-radio :label="tableData[scope.$index].id">设置答案</el-radio>
+            <el-radio-group v-model="saveData.typeRadio" v-if ="dropCol[index].id > '2' && type == 3">
+              <el-radio :label="tableData[scope.$index].typeRadio + item.id">{{tableData[scope.$index].typeRadio}}</el-radio>
             </el-radio-group>
             <!-- 多选 -->
-            <el-checkbox-group v-model="checkList[scope.$index]" v-if ="dropCol[index].id > '2' && type == 6">
-                <el-checkbox :label="tableData[scope.$index].id">设置答案</el-checkbox>
+            <el-checkbox-group v-model="tableData[scope.$index].checkList" v-if ="dropCol[index].id > '2' && type == 6">
+                <el-checkbox :label="item.id">设置答案</el-checkbox>
             </el-checkbox-group>
-            <el-input  v-if ="dropCol[index].id == '3' && type == 9" v-model="tableInput" placeholder="请输入内容"></el-input>
+            <el-input  v-if ="dropCol[index].id > '2' && type == 9" v-model="tableData[scope.$index].tableInput[item.id]" placeholder="请输入内容"></el-input>
         </template>
       </el-table-column>
     </el-table>
@@ -52,22 +52,14 @@ export default {
   },
   data() {
     return {
+      saveData:{
+        tableInput: {},
+        typeRadio: {},
+        checkList: {}
+      },
       tableInput: '',
       typeRadio: 0,
       checkList: [],
-      data: {
-          id: '',
-          title: '',
-          choise: '',
-          anwes: '',
-          typeRadio: 0
-      },
-      addChoiseData: {
-          label: '答案',
-          prop: '',
-          id: '4',
-          typeRadio: 10
-      },
       col: [
         {
           label: '标题',
@@ -108,17 +100,12 @@ export default {
       tableData: [
         {
           id: 1,
-          title: '2016-05-02',
-          choise: '王小虎1',
-          anwes: '上海市普陀区金沙江路 100 弄',
-          typeRadio: 10
-        },
-        {
-          id: 2,
-          title: '2016-05-02',
-          choise: '王小虎1',
-          anwes: '上海市普陀区金沙江路 100 弄',
-          typeRadio: 20
+          title: '',
+          choise: '',
+          anwes: '',
+          typeRadio: 0,
+          checkList: [],
+          tableInput: {}
         }
       ]
     }
@@ -134,7 +121,6 @@ export default {
       const _this = this
       Sortable.create(tbody, {
         onEnd({ newIndex, oldIndex }) {
-          console.log(newIndex)
           const currRow = _this.tableData.splice(oldIndex, 1)[0]
           _this.tableData.splice(newIndex, 0, currRow)
         }
@@ -153,22 +139,51 @@ export default {
         }
       })
     },
-    changeData (data) {
-      data[data.length - 1].id = data.length + 1
-      data[data.length - 1].typeRadio = 10*data.length + 10
+    changeData (tableData) {
+      let addChoiseData= {
+          label: '答案',
+          prop: '',
+          id: '',
+          typeRadio: 0,
+          checkList: [],
+          tableInput: {}
+      }
+      this.$prompt('请输入标题', '', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          inputPattern: /\S/,
+          inputErrorMessage: '标题不能为空'
+        }).then(({ value }) => {
+          addChoiseData.label = value
+          addChoiseData.id = tableData.length + 1
+          addChoiseData.typeRadio = 1*tableData.length + 10
+          this.dropCol.push(addChoiseData)
+          this.col.push(addChoiseData)
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '取消输入'
+          });
+      });
     },
     // 添加一行数据
     addData () {
-       this.tableData.push(this.data)
-       this.changeData(this.tableData)
+      let addData = {
+          id: '',
+          title: '',
+          choise: '',
+          anwes: '',
+          typeRadio: 0,
+          checkList: [],
+          tableInput: {}
+      }
+      addData.id = this.tableData.length + 1
+      addData.typeRadio = 10*this.tableData.length + 10
+      this.tableData.push(addData)
     },
     // 添加一列数据
     addChoise () {
-      this.dropCol.push(this.addChoiseData)
-      this.col.push(this.addChoiseData)
-      this.changeData(this.dropCol)
       this.changeData(this.col)
-      console.log(this.col)
     }
   }
 }
