@@ -1,5 +1,5 @@
 <template>
-  <div style="width:100%;margin-top: 40px">
+  <div style="width:100%;margin-top: 40px" id="table">
     <div style="margin:10px">
       <el-button @click="addData()">添加一条数据</el-button>
       <el-button @click="addChoise()">添加选择</el-button>
@@ -19,24 +19,24 @@
 
           <!-- 类型判断 -->
             <!-- 单选 -->
-            <el-radio-group v-model="saveData.typeRadio" v-if ="dropCol[index].id == '2' && type == 3" >
-              <el-radio :label="tableData[scope.$index].typeRadio + item.id">{{item.id}}</el-radio>
+            <el-radio-group v-model="saveData.typeRadio[scope.$index]" v-if ="dropCol[index].id == '2' && type == 3" >
+              <el-radio :label="tableData[scope.$index].typeRadio + item.id">{{tableInput}}</el-radio>
             </el-radio-group>
            <!-- 多选 -->
-            <el-checkbox-group v-model="checkList" v-if ="dropCol[index].id == '2' && type == 6">
-                <el-checkbox :label="tableData[scope.$index].id">选择</el-checkbox>
+            <el-checkbox-group v-model="tableData[scope.$index].checkList" v-if ="dropCol[index].id == '2' && type == 6">
+                <el-checkbox :label="tableData[scope.$index].id">{{tableInput}}</el-checkbox>
             </el-checkbox-group>
             <!-- 填空 -->
             <el-input  v-if ="dropCol[index].id == '2' && type == 9" v-model="tableData[scope.$index].tableInput[item.id]" placeholder="请输入内容"></el-input>
-
+<!-- -->
           <!-- 答案 -->
             <!-- 单选 -->
-            <el-radio-group v-model="saveData.typeRadio" v-if ="dropCol[index].id > '2' && type == 3">
-              <el-radio :label="tableData[scope.$index].typeRadio + item.id">{{tableData[scope.$index].typeRadio}}</el-radio>
+            <el-radio-group v-model="saveData.typeRadio[scope.$index]" v-if ="dropCol[index].id > '2' && type == 3">
+              <el-radio :label="tableData[scope.$index].typeRadio + item.id">{{tableInput}}</el-radio>
             </el-radio-group>
             <!-- 多选 -->
             <el-checkbox-group v-model="tableData[scope.$index].checkList" v-if ="dropCol[index].id > '2' && type == 6">
-                <el-checkbox :label="item.id">设置答案</el-checkbox>
+                <el-checkbox :label="item.id">{{tableInput}}</el-checkbox>
             </el-checkbox-group>
             <el-input  v-if ="dropCol[index].id > '2' && type == 9" v-model="tableData[scope.$index].tableInput[item.id]" placeholder="请输入内容"></el-input>
         </template>
@@ -72,29 +72,20 @@ export default {
           prop: 'choise',
           id: '2',
           typeRadio: 20
-        },
-        {
-          label: '答案',
-          prop: 'anwes',
-          id: '3',
-          typeRadio: 30
         }
       ],
       dropCol: [
         {
           label: '标题',
           prop: 'title',
-          id: '1'
+          id: '1',
+          typeRadio: 10
         },
         {
           label: '选项',
-          prop: 'choise',
-          id: '2'
-        },
-        {
-          label: '答案',
-          prop: 'anwes',
-          id: '3'
+          prop: '',
+          id: '2',
+          typeRadio: 20
         }
       ],
       tableData: [
@@ -103,7 +94,7 @@ export default {
           title: '',
           choise: '',
           anwes: '',
-          typeRadio: 0,
+          typeRadio: {},
           checkList: [],
           tableInput: {}
         }
@@ -117,7 +108,7 @@ export default {
   methods: {
     //行拖拽
     rowDrop() {
-      const tbody = document.querySelector('.el-table__body-wrapper tbody')
+      const tbody = document.querySelector('#table .el-table__body-wrapper tbody')
       const _this = this
       Sortable.create(tbody, {
         onEnd({ newIndex, oldIndex }) {
@@ -128,7 +119,7 @@ export default {
     },
     //列拖拽
     columnDrop() {
-      const wrapperTr = document.querySelector('.el-table__header-wrapper tr')
+      const wrapperTr = document.querySelector('#table .el-table__header-wrapper tr')
       this.sortable = Sortable.create(wrapperTr, {
         animation: 180,
         delay: 0,
@@ -144,7 +135,7 @@ export default {
           label: '答案',
           prop: '',
           id: '',
-          typeRadio: 0,
+          typeRadio: {},
           checkList: [],
           tableInput: {}
       }

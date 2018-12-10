@@ -1,18 +1,45 @@
 <template>
   <div class="multTask">
-    <p @click="setTitle">{{title}}</p>
-    <ul>
-      <li v-for="(item, index) in tableData" :key="index">
-        <div class="title" @click="visible = true">{{item.title}}</div>
-        <div class="choise">
-          <el-radio v-model="radio" :label="col"  v-if = "setQdata.type == 3" v-for="col in setQdata.col">{{col.label}}</el-radio>
-          <el-checkbox-group v-model="item.checkList" v-if ="setQdata.type == 6">
-            <el-checkbox :label="item.id">{{item.checkList}}</el-checkbox>
-          </el-checkbox-group>
-          <el-input  v-if ="setQdata.type == 9" v-model="item.tableInput" placeholder="请输入内容"></el-input>
-        </div>
-      </li>
-    </ul>
+    <p @click="setTitle" ref = "setTitle">{{title}}</p>
+    <el-button style="float: left;margin-bottom: 10px" @click="visible = true">编辑题目</el-button>
+    <el-table :data="tableData"
+      ref="table"
+      border
+      align="left"
+      >
+     <el-table-column v-for="(item, index) in col"
+        :key="`col_${index}`"
+        :prop="dropCol[index].prop"
+        :label="item.label"> 
+          <template slot-scope="scope">
+            <!-- 输入框 -->
+            <p  v-if ="dropCol[index].id == '1'" placeholder="请输入内容">{{tableData[scope.$index].title}}</p>
+
+          <!-- 类型判断 -->
+            <!-- 单选 -->
+            <el-radio-group v-model="saveData.typeRadio[scope.$index]" v-if ="dropCol[index].id == '2' && setQdata.type == 3" >
+              <el-radio :label="tableData[scope.$index].typeRadio + item.id">{{tableInput}}</el-radio>
+            </el-radio-group>
+           <!-- 多选 -->
+            <el-checkbox-group v-model="checkList" v-if ="dropCol[index].id == '2' && setQdata.type == 6">
+                <el-checkbox :label="tableData[scope.$index].id">{{tableInput}}</el-checkbox>
+            </el-checkbox-group>
+            <!-- 填空 -->
+            <el-input  v-if ="dropCol[index].id == '2' && setQdata.type == 9" v-model="tableData[scope.$index].tableInput[item.id]" placeholder="请输入内容"></el-input>
+
+            <!-- 答案 -->
+            <!-- 单选 -->
+            <el-radio-group v-model="saveData.typeRadio[scope.$index]" v-if ="dropCol[index].id > '2' && setQdata.type == 3">
+              <el-radio :label="tableData[scope.$index].typeRadio + item.id">{{tableInput}}</el-radio>
+            </el-radio-group>
+            <!-- 多选 -->
+            <el-checkbox-group v-model="tableData[scope.$index].checkList" v-if ="dropCol[index].id > '2' && setQdata.type == 6">
+                <el-checkbox :label="item.id">{{tableInput}}</el-checkbox>
+            </el-checkbox-group>
+            <el-input  v-if ="dropCol[index].id > '2' && setQdata.type == 9" v-model="tableData[scope.$index].tableInput[item.id]" placeholder="请输入内容"></el-input>
+        </template>
+      </el-table-column>
+    </el-table>
 <!-- 
   
   编辑题目
@@ -33,7 +60,7 @@
        </div>
        <span slot="footer" class="dialog-footer">
         <el-button @click="visible = false">取 消</el-button>
-        <el-button type="primary" @click="saveData()">确 定</el-button>
+        <el-button type="primary" @click="saveDataZ()">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -46,9 +73,25 @@ export default {
     return {
       // setTitleMode: false, //控制设置标题弹框
       // setContentMode: false
+      saveData:{
+        tableInput: {},
+        typeRadio: {},
+        checkList: {}
+      },
       title: '点击设置标题',
       radio: -1,
       visible: false, // 设置标题弹出框
+      radioText: '',
+      tableInput: '',
+      checkList: [],
+      // jsonData
+      jsonData: [{
+        context:[{
+          data: [{
+            items: []
+          }]
+        }]
+      }],
       // 矩形数据
       setQdata: {
         type: 3,
@@ -58,15 +101,50 @@ export default {
             label: '标题',
             prop: 'title',
             id: '1',
-            typeRadio: 10
+            typeRadio: 10,
+            tableInput:{}
           }
         ]
       },
-      tableData: [{
-            title: '点击设置标题',
-            choise: '',
-            num: 0
-          }]
+      col: [
+        {
+          label: '标题',
+          prop: 'title',
+          id: '1',
+          typeRadio: 10
+        },
+        {
+          label: '选项',
+          prop: 'choise',
+          id: '2',
+          typeRadio: 20
+        }
+      ],
+      dropCol: [
+        {
+          label: '标题',
+          prop: 'title',
+          id: '1',
+          typeRadio: 10
+        },
+        {
+          label: '选项',
+          prop: 'choise',
+          id: '2',
+          typeRadio: 20
+        }
+      ],
+      tableData: [
+        {
+          id: 1,
+          title: '',
+          choise: '',
+          anwes: '',
+          typeRadio: {},
+          checkList: [],
+          tableInput: {}
+        }
+      ]
     }
   },
   methods: {
@@ -90,13 +168,69 @@ export default {
           });
         });
     },
-    setQus() {
-
+    // 设置json数据传入vuex 
+    saveStoreData() {
+      let context = this.jsonData[0].context[0]
+      let data = context.data[0]
+      let title = "<p>" + this.title + "</p>"  // 矩阵题型标题
+      let type;    // 矩阵题型类型
+      switch (this.setQdata.type) {
+        case 3:
+          type = "matrixRadio"
+          break;
+        case 6:
+          type = "matrixBlank"
+          break;
+        case 9:
+          type = "matrix"
+          break;
+        case 12:
+          type = "matrix"
+          break
+      }
+      context.type = type
+      context.title = title
+      data.rows = this.tableData.length + 1    // 条数
+      data.cols = this.$refs.mtable.dropCol.length    // 列shu
+      this.jsonData[0].questionTypes = type  // 问题类型
+      let contextJSON = JSON.stringify(this.jsonData[0].context[0])  // 转换json字符串
+      this.$refs.mtable.dropCol.map((it, ins) => {
+          let y = {
+              x:0,
+              y:ins,
+              title: it.label,
+              isChecked: false,
+              isLable: true,
+              blank: false
+            }
+          data.items.push(y)
+        })
+      this.tableData.map((item, index) => {
+        this.$refs.mtable.dropCol.map((it, ins) => {
+          let y = {
+              x:index + 1,
+              y:ins,
+              title: it.label,
+              isChecked: false,
+              isLable: true,
+              blank: false
+            }
+          data.items.push(y)
+        })
+      })
+      // console.log(this.setQdata.col.length)
+      console.log(this.jsonData[0])
     },
-    saveData(){
-      this.tableData = this.$refs.mtable.tableData
-      this.setQdata.col = this.$refs.mtable.col.slice(2)
+    // 保存按钮 取子组件数据
+    saveDataZ(){
+      this.tableData = this.$refs.mtable.tableData    // 题目数据
+      this.col = this.$refs.mtable.dropCol  // table头部
+      this.dropCol = this.$refs.mtable.dropCol  // toubu 
       this.visible = false
+      
+      // this.cellTable()
+      // 保存数据到vuex
+      this.saveStoreData()
     }
   },
   mounted() {
@@ -117,9 +251,12 @@ export default {
     padding: 10px;
   }
   ul li .title{
-    flex: 1
+    flex: 1;
+    margin-right: 20px;
+    text-align: left;
   }
   ul li .choise{
+    padding-right: 10px;
   }
   p{
     font-size: 16px;
