@@ -19,8 +19,8 @@
 
           <!-- 类型判断 -->
             <!-- 单选 -->
-            <el-radio-group v-model="saveData.typeRadio[scope.$index]" v-if ="dropCol[index].id == '2' && type == 3" >
-              <el-radio :label="tableData[scope.$index].typeRadio + item.id">{{tableInput}}</el-radio>
+            <el-radio-group v-model="tableData[scope.$index].typeRadio[scope.$index]" v-if ="dropCol[index].id == '2' && type == 3" >
+              <el-radio :label="tableData[scope.$index].typeRadio + parseInt(item.id)">{{tableInput}}</el-radio>
             </el-radio-group>
            <!-- 多选 -->
             <el-checkbox-group v-model="tableData[scope.$index].checkList" v-if ="dropCol[index].id == '2' && type == 6">
@@ -31,8 +31,8 @@
 <!-- -->
           <!-- 答案 -->
             <!-- 单选 -->
-            <el-radio-group v-model="saveData.typeRadio[scope.$index]" v-if ="dropCol[index].id > '2' && type == 3">
-              <el-radio :label="tableData[scope.$index].typeRadio + item.id">{{tableInput}}</el-radio>
+            <el-radio-group v-model="tableData[scope.$index].typeRadio[scope.$index]" v-if ="dropCol[index].id > '2' && type == 3">
+              <el-radio :label="tableData[scope.$index].typeRadio + parseInt(item.id)">{{tableInput}}</el-radio>
             </el-radio-group>
             <!-- 多选 -->
             <el-checkbox-group v-model="tableData[scope.$index].checkList" v-if ="dropCol[index].id > '2' && type == 6">
@@ -164,12 +164,11 @@ export default {
           title: '',
           choise: '',
           anwes: '',
-          typeRadio: 0,
+          typeRadio: {},
           checkList: [],
           tableInput: {}
       }
       addData.id = this.tableData.length + 1
-      addData.typeRadio = 10*this.tableData.length + 10
       this.tableData.push(addData)
     },
     // 添加一列数据

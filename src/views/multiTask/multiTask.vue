@@ -1,5 +1,5 @@
 <template>
-  <div class="multTask">
+  <div class="multTask" ref="multTask">
     <p @click="setTitle" ref = "setTitle">{{title}}</p>
     <el-button style="float: left;margin-bottom: 10px" @click="visible = true">编辑题目</el-button>
     <el-table :data="tableData"
@@ -104,7 +104,8 @@ export default {
             typeRadio: 10,
             tableInput:{}
           }
-        ]
+        ],
+        ans: []  // 单选答案
       },
       col: [
         {
@@ -194,11 +195,11 @@ export default {
       data.cols = this.$refs.mtable.dropCol.length    // 列shu
       this.jsonData[0].questionTypes = type  // 问题类型
       let contextJSON = JSON.stringify(this.jsonData[0].context[0])  // 转换json字符串
-      this.$refs.mtable.dropCol.map((it, ins) => {
+      this.dropCol.map((it, ins) => {
           let y = {
               x:0,
               y:ins,
-              title: it.label,
+              title:it.label,
               isChecked: false,
               isLable: true,
               blank: false
@@ -206,20 +207,20 @@ export default {
           data.items.push(y)
         })
       this.tableData.map((item, index) => {
-        this.$refs.mtable.dropCol.map((it, ins) => {
+        for (var i = 0; i<this.dropCol.length; i ++){
           let y = {
               x:index + 1,
-              y:ins,
-              title: it.label,
-              isChecked: false,
-              isLable: true,
-              blank: false
+              y:i,
+              title: this.dropCol[i].label == '标题' ? item.title : '',
+              isChecked: (this.setQdata.type == 3 || this.setQdata.type == 6) && this.dropCol[i].label !== '标题' && (item.typeRadio[index] !== undefined && item.typeRadio[index].substr(-1) == i + 1) ? true : false,
+              isLable: this.dropCol[i].label == '标题' ||  this.setQdata.type == 9 ? true : false,
+              blank: this.setQdata.type == 9  && this.dropCol[i].label !== '标题' ? item.tableInput[index] : ''
             }
           data.items.push(y)
-        })
+        }
       })
       // console.log(this.setQdata.col.length)
-      console.log(this.jsonData[0])
+      console.log(this.$refs.multTask)
     },
     // 保存按钮 取子组件数据
     saveDataZ(){
@@ -227,8 +228,6 @@ export default {
       this.col = this.$refs.mtable.dropCol  // table头部
       this.dropCol = this.$refs.mtable.dropCol  // toubu 
       this.visible = false
-      
-      // this.cellTable()
       // 保存数据到vuex
       this.saveStoreData()
     }
