@@ -63,6 +63,7 @@
         <el-button type="primary" @click="saveDataZ()">确 定</el-button>
       </span>
     </el-dialog>
+  
   </div>
 </template>
 <script>
@@ -171,6 +172,7 @@ export default {
     },
     // 设置json数据传入vuex 
     saveStoreData() {
+      context.data[0].item = []
       let context = this.jsonData[0].context[0]
       let data = context.data[0]
       let title = "<p>" + this.title + "</p>"  // 矩阵题型标题
@@ -206,7 +208,7 @@ export default {
             }
           data.items.push(y)
         })
-      this.tableData.map((item, index) => {
+      this.$refs.mtable.tableData.map((item, index) => {
         for (var i = 0; i<this.dropCol.length; i ++){
           let y = {
               x:index + 1,
@@ -220,11 +222,24 @@ export default {
         }
       })
       // console.log(this.setQdata.col.length)
-      console.log(this.$refs.multTask)
+      console.log(this.$refs.mtable.tableData)
+      this.$store.commit('setData', this.jsonData)
+      console.log(this.$store.state)
     },
     // 保存按钮 取子组件数据
     saveDataZ(){
-      this.tableData = this.$refs.mtable.tableData    // 题目数据
+      // this.tableData = this.$refs.mtable.tableData    // 题目数据
+      this.tableData = []
+      this.$refs.mtable.tableData.map((item, index) => {
+        let y = {
+          id: item.id,
+          title: item.title,
+          typeRadio: {},
+          checkList: [],
+          tableInput: {}
+        }
+        this.tableData.push(y)
+      })
       this.col = this.$refs.mtable.dropCol  // table头部
       this.dropCol = this.$refs.mtable.dropCol  // toubu 
       this.visible = false

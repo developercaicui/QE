@@ -12,7 +12,7 @@
      <el-table-column v-for="(item, index) in col"
         :key="`col_${index}`"
         :prop="dropCol[index].prop"
-        :label="item.label"> 
+        :label="item.label">  
           <template slot-scope="scope">
             <!-- 输入框 -->
             <el-input  v-if ="dropCol[index].id == '1'" v-model="tableData[scope.$index].title" placeholder="请输入内容"></el-input>
@@ -28,6 +28,16 @@
             </el-checkbox-group>
             <!-- 填空 -->
             <el-input  v-if ="dropCol[index].id == '2' && type == 9" v-model="tableData[scope.$index].tableInput[item.id]" placeholder="请输入内容"></el-input>
+            <!-- 下拉 -->
+            <el-button @click="setSelet()" v-if ="dropCol[index].id == '2' && type == 12 && tableData[scope.$index].selectAnwes == ''">修改下拉框</el-button>
+            <el-select v-model="tableData[scope.$index].selectAnwes" placeholder="请选择" v-if ="dropCol[index].id == '2' && type == 12 && tableData[scope.$index].selectAnwes !== ''">
+              <el-option
+                v-for="item in tableData[scope.$index].checkList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
 <!-- -->
           <!-- 答案 -->
             <!-- 单选 -->
@@ -38,7 +48,19 @@
             <el-checkbox-group v-model="tableData[scope.$index].checkList" v-if ="dropCol[index].id > '2' && type == 6">
                 <el-checkbox :label="item.id">{{tableInput}}</el-checkbox>
             </el-checkbox-group>
+            <!-- 填空 -->
             <el-input  v-if ="dropCol[index].id > '2' && type == 9" v-model="tableData[scope.$index].tableInput[item.id]" placeholder="请输入内容"></el-input>
+
+            <!-- 下拉 -->
+            <el-button @click="selectDialogVisible = true" v-if ="dropCol[index].id > '2' && type == 12 && tableData[scope.$index].selectAnwes == ''">修改下拉框</el-button>
+            <el-select v-model="tableData[scope.$index].selectAnwes" placeholder="请选择" v-if ="dropCol[index].id > '2' && type == 12 && tableData[scope.$index].selectAnwes !== ''">
+              <el-option
+                v-for="item in tableData[scope.$index].checkList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
         </template>
       </el-table-column>
     </el-table>
@@ -57,6 +79,7 @@ export default {
         typeRadio: {},
         checkList: {}
       },
+      selectDialogVisible: false,
       tableInput: '',
       typeRadio: 0,
       checkList: [],
@@ -93,10 +116,15 @@ export default {
           id: 1,
           title: '',
           choise: '',
-          anwes: '',
+          selectAnwes: '',
           typeRadio: {},
           checkList: [],
-          tableInput: {}
+          tableInput: {},
+          options: [{
+            value:'',
+            label: '',
+            isans: false
+          }]
         }
       ]
     }
@@ -174,6 +202,10 @@ export default {
     // 添加一列数据
     addChoise () {
       this.changeData(this.col)
+    },
+    // 设置下拉框
+    setSelet () {
+
     }
   }
 }
