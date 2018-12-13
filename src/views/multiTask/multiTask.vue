@@ -2,6 +2,8 @@
   <div class="multTask" ref="multTask">
     <p @click="setTitle" ref = "setTitle">{{title}}</p>
     <el-button style="float: left;margin-bottom: 10px" @click="visible = true">编辑题目</el-button>
+    <el-button style="float: left;margin-bottom: 10px" >编译</el-button>
+    <el-button style="float: left;margin-bottom: 10px" >背景</el-button>
     <el-table :data="tableData"
       ref="table"
       border
@@ -63,7 +65,6 @@
         <el-button type="primary" @click="saveDataZ()">确 定</el-button>
       </span>
     </el-dialog>
-  
   </div>
 </template>
 <script>
@@ -72,8 +73,6 @@ export default {
   name: 'multTask',
   data() {
     return {
-      // setTitleMode: false, //控制设置标题弹框
-      // setContentMode: false
       saveData:{
         tableInput: {},
         typeRadio: {},
@@ -82,10 +81,6 @@ export default {
       title: '点击设置标题',
       radio: -1,
       visible: false, // 设置标题弹出框
-      radioText: '',
-      tableInput: '',
-      checkList: [],
-      // jsonData
       jsonData: [{
         context:[{
           data: [{
@@ -172,11 +167,11 @@ export default {
     },
     // 设置json数据传入vuex 
     saveStoreData() {
-      context.data[0].item = []
       let context = this.jsonData[0].context[0]
       let data = context.data[0]
       let title = "<p>" + this.title + "</p>"  // 矩阵题型标题
       let type;    // 矩阵题型类型
+      context.data[0].item = []
       switch (this.setQdata.type) {
         case 3:
           type = "matrixRadio"
@@ -208,7 +203,6 @@ export default {
             }
           data.items.push(y)
         })
-        // 从弹出框组件处理数据
       this.$refs.mtable.tableData.map((item, index) => {
         for (var i = 0; i<this.dropCol.length; i ++){
           let y = {
@@ -222,7 +216,7 @@ export default {
           data.items.push(y)
         }
       })
-      // 提交到vuex
+      // 数据上传到vuex
       this.$store.commit('setData', this.jsonData)
     },
     // 保存按钮 取子组件数据
@@ -246,8 +240,10 @@ export default {
       this.saveStoreData()
     }
   },
+  // 生命周期
   mounted() {
   },
+  // 组件
   components: {
     Mtable
   }
