@@ -208,6 +208,7 @@ export default {
             }
           data.items.push(y)
         })
+        // 从弹出框组件处理数据
       this.$refs.mtable.tableData.map((item, index) => {
         for (var i = 0; i<this.dropCol.length; i ++){
           let y = {
@@ -221,10 +222,8 @@ export default {
           data.items.push(y)
         }
       })
-      // console.log(this.setQdata.col.length)
-      console.log(this.$refs.mtable.tableData)
+      // 提交到vuex
       this.$store.commit('setData', this.jsonData)
-      console.log(this.$store.state)
     },
     // 保存按钮 取子组件数据
     saveDataZ(){
