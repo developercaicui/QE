@@ -81,6 +81,9 @@ export default {
       title: '点击设置标题',
       radio: -1,
       visible: false, // 设置标题弹出框
+      radioText: '',
+      tableInput: '',
+      checkList: [],
       jsonData: [{
         context:[{
           data: [{
@@ -240,10 +243,8 @@ export default {
       this.saveStoreData()
     }
   },
-  // 生命周期
   mounted() {
   },
-  // 组件
   components: {
     Mtable
   }
